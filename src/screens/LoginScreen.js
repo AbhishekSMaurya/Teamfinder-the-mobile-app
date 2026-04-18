@@ -84,19 +84,20 @@ const LoginScreen = ({ navigation }) => {
             </View>
           ) : null}
 
-          {/* Username */}
+          {/* Email or Username */}
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Username</Text>
+            <Text style={styles.label}>Email or Username</Text>
             <View style={styles.inputRow}>
               <User size={16} color={colors.textMuted} style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Enter your username"
+                placeholder="Enter your email or username"
                 placeholderTextColor={colors.textMuted}
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize="none"
                 autoCorrect={false}
+                keyboardType="email-address"
                 returnKeyType="next"
               />
             </View>

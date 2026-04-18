@@ -17,6 +17,9 @@ urlpatterns = [
 
     # Posts, Comments, Projects
     path('api/', include('posts.urls')),
+
+    #Mesages
+    path('api/messages/', include('messaging.urls')),
 ]
 
 # Serve media files (avatars, images) in development

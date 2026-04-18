@@ -16,23 +16,25 @@ from .serializers import (
 User = get_user_model()
 
 
-# ── Custom login: accepts username (default SimpleJWT behaviour) ──────────────
-# Your LoginScreen sends { username, password } — this works out of the box.
-# If you ever want to accept email instead, swap username_field to User.EMAIL_FIELD.
+# ── Custom login: accepts email OR username ───────────────────────────────────
+# User.USERNAME_FIELD = 'email', so SimpleJWT expects { email, password }.
+# This serializer also accepts a username and resolves it to the matching email,
+# so the frontend can send either identifier.
 class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
     """
-    Allows login with either username or email.
-    The frontend sends { username, password }; SimpleJWT matches on username.
+    Accepts { email, password } OR { username, password }.
+    If the value sent in the 'email' field does NOT contain '@' we treat it as
+    a username and look up the associated email so SimpleJWT can authenticate.
     """
     def validate(self, attrs):
-        # Try to find the user by email if the value looks like an email
-        identifier = attrs.get(self.username_field, '')
-        if '@' in identifier:
+        identifier = attrs.get(self.username_field, '')   # self.username_field == 'email'
+        # If it looks like a username (no @), resolve it to the user's email
+        if identifier and '@' not in identifier:
             try:
-                user_obj = User.objects.get(email=identifier)
-                attrs[self.username_field] = user_obj.username
+                user_obj = User.objects.get(username=identifier)
+                attrs[self.username_field] = user_obj.email
             except User.DoesNotExist:
-                pass  # Let the default validation raise the error
+                pass  # Let the default validation raise "No active account found"
         return super().validate(attrs)
 
 

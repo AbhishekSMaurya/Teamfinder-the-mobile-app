@@ -38,6 +38,16 @@ const TagChip = ({ label }) => (
   </View>
 );
 
+// ── Safe skills parser — handles string, array, null, undefined ──────────────
+const parseSkills = (skills) => {
+  if (!skills) return [];
+  if (Array.isArray(skills)) return skills;
+  if (typeof skills === 'string') {
+    try { return JSON.parse(skills); } catch (_) { return []; }
+  }
+  return [];
+};
+
 // ── Main Screen ────────────────────────────────────────────────────────────
 const ProfileScreen = () => {
   const { user, logout } = useAuth();
@@ -122,12 +132,12 @@ const ProfileScreen = () => {
         </View>
 
         {/* ── Skills card ── */}
-        {user.skills?.length > 0 && (
+        {parseSkills(user.skills).length > 0 && (
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>Skills</Text>
             <View style={styles.tagsRow}>
-              {user.skills.map((skill, i) => (
-                <TagChip key={i} label={skill} />
+              {parseSkills(user.skills).map((skill, i) => (
+                <TagChip key={i} label={String(skill)} />
               ))}
             </View>
           </View>

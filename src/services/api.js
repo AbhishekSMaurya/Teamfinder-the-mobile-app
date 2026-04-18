@@ -57,11 +57,14 @@ const api = {
 
   // ── Auth ────────────────────────────────────────────────────────────────
 
-  login: async (username, password) => {
+  login: async (identifier, password) => {
+    // Backend USERNAME_FIELD = 'email', so the field key must be 'email'.
+    // We accept either an email address or a username — the backend serializer
+    // resolves a plain username to its email before authenticating.
     const response = await fetch(`${BASE_URL}/auth/login/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: username, password }),
+      body: JSON.stringify({ email: identifier, password }),
     });
     const data = await handleResponse(response);
     await tokenStorage.setTokens(data.access, data.refresh);
@@ -220,6 +223,127 @@ const api = {
     });
     return handleResponse(response);
   },
+  // ─────────────────────────────────────────────────────────────────────────────
+// ADD THESE METHODS to the `api` object in src/services/api.js
+// Paste them before the closing `};` of the api object.
+// ─────────────────────────────────────────────────────────────────────────────
+
+  // ── Messaging: Direct Messages ───────────────────────────────────────────
+
+  getDMConversations: async () => {
+    const response = await fetch(`${BASE_URL}/messages/conversations/`, {
+      headers: await authHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  getDMThread: async (userId) => {
+    const response = await fetch(`${BASE_URL}/messages/dm/${userId}/`, {
+      headers: await authHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  sendDM: async (userId, content) => {
+    const response = await fetch(`${BASE_URL}/messages/dm/${userId}/`, {
+      method: 'POST',
+      headers: await authHeaders(),
+      body: JSON.stringify({ content }),
+    });
+    return handleResponse(response);
+  },
+
+  pollDM: async (userId, afterId) => {
+    const response = await fetch(
+      `${BASE_URL}/messages/dm/${userId}/poll/?after=${afterId}`,
+      { headers: await authHeaders() },
+    );
+    return handleResponse(response);
+  },
+
+  searchUsers: async (q) => {
+    const response = await fetch(
+      `${BASE_URL}/messages/users/search/?q=${encodeURIComponent(q)}`,
+      { headers: await authHeaders() },
+    );
+    return handleResponse(response);
+  },
+
+  // ── Messaging: Group Chats ───────────────────────────────────────────────
+
+  getMyGroupChats: async () => {
+    const response = await fetch(`${BASE_URL}/messages/groups/my/`, {
+      headers: await authHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  getAllGroupChats: async (q = '') => {
+    const url = q
+      ? `${BASE_URL}/messages/groups/?q=${encodeURIComponent(q)}`
+      : `${BASE_URL}/messages/groups/`;
+    const response = await fetch(url, { headers: await authHeaders() });
+    return handleResponse(response);
+  },
+
+  getRecommendedGroups: async () => {
+    const response = await fetch(`${BASE_URL}/messages/groups/recommended/`, {
+      headers: await authHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  createGroupChat: async (payload) => {
+    const response = await fetch(`${BASE_URL}/messages/groups/`, {
+      method: 'POST',
+      headers: await authHeaders(),
+      body: JSON.stringify(payload),
+    });
+    return handleResponse(response);
+  },
+
+  joinGroupChat: async (groupId) => {
+    const response = await fetch(`${BASE_URL}/messages/groups/${groupId}/join/`, {
+      method: 'POST',
+      headers: await authHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  leaveGroupChat: async (groupId) => {
+    const response = await fetch(`${BASE_URL}/messages/groups/${groupId}/leave/`, {
+      method: 'POST',
+      headers: await authHeaders(),
+    });
+    return handleResponse(response);
+  },
+
+  getGroupMessages: async (groupId, beforeId = null) => {
+    const url = beforeId
+      ? `${BASE_URL}/messages/groups/${groupId}/messages/?before=${beforeId}`
+      : `${BASE_URL}/messages/groups/${groupId}/messages/`;
+    const response = await fetch(url, { headers: await authHeaders() });
+    return handleResponse(response);
+  },
+
+  sendGroupMessage: async (groupId, content) => {
+    const response = await fetch(`${BASE_URL}/messages/groups/${groupId}/messages/`, {
+      method: 'POST',
+      headers: await authHeaders(),
+      body: JSON.stringify({ content }),
+    });
+    return handleResponse(response);
+  },
+
+  pollGroupMessages: async (groupId, afterId) => {
+    const response = await fetch(
+      `${BASE_URL}/messages/groups/${groupId}/poll/?after=${afterId}`,
+      { headers: await authHeaders() },
+    );
+    return handleResponse(response);
+  },
 };
+
+
 
 export default api;

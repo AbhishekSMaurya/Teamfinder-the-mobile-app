@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'teams',
     'announcements',
     'posts',
+    'messaging',
 ]
 
 # ─── Middleware ───────────────────────────────────────────────────────────────

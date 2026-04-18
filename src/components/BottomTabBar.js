@@ -2,7 +2,6 @@
 import React from 'react';
 import {
   View,
-  Text,
   TouchableOpacity,
   StyleSheet,
   Platform,
@@ -30,14 +29,6 @@ const BottomTabBar = ({ state, descriptors, navigation }) => {
   return (
     <View style={styles.container}>
       {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
-        const label =
-          options.tabBarLabel !== undefined
-            ? options.tabBarLabel
-            : options.title !== undefined
-            ? options.title
-            : route.name;
-
         const isFocused = state.index === index;
         const IconComponent = TAB_ICONS[route.name];
 
@@ -59,17 +50,21 @@ const BottomTabBar = ({ state, descriptors, navigation }) => {
             style={styles.tab}
             activeOpacity={0.75}
           >
+            {/* Active pill behind icon */}
+            {isFocused && <View style={styles.activePill} />}
+
             {IconComponent && (
               <IconComponent
-                size={22}
+                size={24}
                 color={isFocused ? colors.tabBarActive : colors.tabBarInactive}
-                strokeWidth={isFocused ? 2.2 : 1.8}
+                strokeWidth={isFocused ? 2.3 : 1.7}
               />
             )}
-            <Text style={[styles.label, isFocused && styles.activeLabel]}>
-              {label}
-            </Text>
-            {isFocused && <View style={styles.activeIndicator} />}
+
+            {/* Small dot below icon when active */}
+            <View style={styles.dot}>
+              {isFocused && <View style={styles.dotFilled} />}
+            </View>
           </TouchableOpacity>
         );
       })}
@@ -83,8 +78,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.tabBarBackground,
     borderTopWidth: 1,
     borderTopColor: colors.border,
-    paddingBottom: Platform.OS === 'ios' ? 20 : 8,
-    paddingTop: 8,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 10,
+    paddingTop: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.06,
@@ -95,28 +90,29 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
-    paddingTop: 2,
+    paddingVertical: 2,
   },
-  label: {
-    fontSize: 10,
-    color: colors.tabBarInactive,
-    fontWeight: '500',
-    letterSpacing: 0.1,
-    marginTop: 3,
-  },
-  activeLabel: {
-    color: colors.tabBarActive,
-    fontWeight: '700',
-  },
-  activeIndicator: {
+  activePill: {
     position: 'absolute',
-    top: -8,
-    width: 28,
-    height: 3,
+    top: -2,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.primaryLight,
+  },
+  dot: {
+    height: 4,
+    marginTop: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dotFilled: {
+    width: 4,
+    height: 4,
     borderRadius: 2,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.tabBarActive,
   },
 });
 
 export default BottomTabBar;
+
