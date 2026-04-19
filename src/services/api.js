@@ -2,7 +2,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ── Base URL — update to your machine's local IP ──────────────────────────
-const BASE_URL = 'http://192.168.1.9:8000/api';
+const BASE_URL = 'https://teamfinder-the-mobile-app.onrender.com/api';
 
 // ── Token helpers ─────────────────────────────────────────────────────────
 export const tokenStorage = {
@@ -157,6 +157,13 @@ const api = {
     });
     return handleResponse(response);
   },
+
+  getFeed: async (page = 1) => {
+  const response = await fetch(`${BASE_URL}/feed/?page=${page}`, {
+    headers: await authHeaders(),
+  });
+  return handleResponse(response);
+},
 
   likePost: async (postId) => {
     const response = await fetch(`${BASE_URL}/posts/${postId}/like/`, {
